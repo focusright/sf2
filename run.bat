@@ -1,0 +1,1 @@
+.\build_cmake\Release\sf2.exe .\build

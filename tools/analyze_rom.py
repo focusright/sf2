@@ -621,6 +621,15 @@ class M68KAnalyzer:
                         targets.append((target, is_tailcall))
                         if is_tailcall and target not in self.labels:
                             self.labels[target] = f"sub_{target:06X}"
+                        elif not is_tailcall and target not in self.labels:
+                            # Intra-function bra/jmp. Conditional branches already
+                            # get a loc_ label; an unconditional one did not, so the
+                            # generator's undefined-goto cleanup turned it into
+                            # func_table_call of an unregistered address
+                            # (SF2: bra.b $6550 inside sub_00653C). A target that
+                            # actually crosses functions is upgraded to sub_ by the
+                            # split pass below.
+                            self.labels[target] = f"loc_{target:06X}"
                 break
 
             elif mnemonic in ('rts', 'rte', 'rtr'):
